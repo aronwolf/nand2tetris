@@ -1,4 +1,5 @@
 import sys
+import regex as re
 
 comp_table = {
     '0': '0101010',
@@ -71,25 +72,34 @@ def assemble_a(line):
     return value        
 
 def assemble_c(line):
-    try:
-        dest, rest = line.split('=')
-    except ValueError:
-        dest, rest = 'null', line
-    try:
-        comp, jump = rest.split(';')
-    except ValueError:
-        comp, jump = rest, 'null'
-
-    try:
-        comp = comp_table[comp]
-        dest = dest_table[dest]
-        jump = jump_table[jump]
-    except KeyError:
-        raise Error('Bad C-instruction: {line}'.format(line=line))
-
-    return '111{comp}{dest}{jump}'.format(comp=comp,
-                                          dest=dest.zfill(3),
-                                          jump=jump.zfill(3))
+#    try:
+#        dest, rest = line.split('=')
+#    except ValueError:
+#        dest, rest = 'null', line
+#    try:
+#        comp, jump = rest.split(';')
+#    except ValueError:
+#        comp, jump = rest, 'null'
+#
+#    try:
+    
+    comp = re.split('=|;', line)
+    dest = re.findall("^.*\d?=(.*\d?)$", line)
+    jump = re.findall("^.*\d?;(.*\d?)$", line)
+    if dest:
+        return '111{comp}{dest}000'.format(comp=comp_table[comp[0]], dest=dest_table[dest[0]])
+    else:
+        return '111{comp}000{jump}'.format(comp=comp_table[comp[0]], jump=jump_table[jump[0]])
+    
+#    comp_result = comp_table[comp]
+#    dest_result = dest_table[dest]
+#    jump_result = jump_table[jump]
+#    except KeyError:
+#        raise Error('Bad C-instruction: {line}'.format(line=line))
+#
+#    return '111{comp}{dest}{jump}'.format(comp=comp,
+#                                          dest=dest.zfill(3),
+#                                          jump=jump.zfill(3))
 
 if __name__ == "__main__":
     assembler(sys.argv[1])
