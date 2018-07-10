@@ -33,7 +33,6 @@ comp_table = {
 }
 
 dest_table = {
-    'null': '000',
     'M': '001',
     'D': '010',
     'MD': '011',
@@ -44,7 +43,6 @@ dest_table = {
 }
 
 jump_table = {
-    'null': '000',
     'JGT': '001',
     'JEQ': '010',
     'JGE': '011',
@@ -63,43 +61,23 @@ def assembler(filename):
 
     for line in code:
         if line.startswith('@'):
-            print(assemble_a(line))
+            print(parse_a(line))
         else:
-            print(assemble_c(line))
+            print(parse_c(line))
 
-def assemble_a(line):
+def parse_a(line):
     value = bin(int(line[1:]))[2:].zfill(16)
     return value        
 
-def assemble_c(line):
-#    try:
-#        dest, rest = line.split('=')
-#    except ValueError:
-#        dest, rest = 'null', line
-#    try:
-#        comp, jump = rest.split(';')
-#    except ValueError:
-#        comp, jump = rest, 'null'
-#
-#    try:
-    
-    comp = re.split('=|;', line)
-    dest = re.findall("^.*\d?=(.*\d?)$", line)
-    jump = re.findall("^.*\d?;(.*\d?)$", line)
-    if dest:
-        return '111{comp}{dest}000'.format(comp=comp_table[comp[0]], dest=dest_table[dest[0]])
+def parse_c(line):
+    value1 = re.split('=|;', line)
+    value2 = re.findall("^.*\d?=(.*\d?)$", line)
+    value3 = re.findall("^.*\d?;(.*\d?)$", line)
+    if '=' in line:
+        return '111{value2}{value1}000'.format(value2=comp_table[value2[0]], value1=dest_table[value1[0]])
     else:
-        return '111{comp}000{jump}'.format(comp=comp_table[comp[0]], jump=jump_table[jump[0]])
+        return '111{value1}000{value3}'.format(value1=comp_table[value1[0]], value3=jump_table[value3[0]])
     
-#    comp_result = comp_table[comp]
-#    dest_result = dest_table[dest]
-#    jump_result = jump_table[jump]
-#    except KeyError:
-#        raise Error('Bad C-instruction: {line}'.format(line=line))
-#
-#    return '111{comp}{dest}{jump}'.format(comp=comp,
-#                                          dest=dest.zfill(3),
-#                                          jump=jump.zfill(3))
 
 if __name__ == "__main__":
     assembler(sys.argv[1])
