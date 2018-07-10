@@ -1,7 +1,7 @@
 import sys
 import regex as re
 
-comp_table = {
+comp_values = {
     '0': '0101010',
     '1': '0111111',
     '-1': '0111010',
@@ -32,7 +32,7 @@ comp_table = {
     'D|M': '1010101',
 }
 
-dest_table = {
+dest_values = {
     'M': '001',
     'D': '010',
     'MD': '011',
@@ -42,7 +42,7 @@ dest_table = {
     'AMD': '111',
 }
 
-jump_table = {
+jump_values = {
     'JGT': '001',
     'JEQ': '010',
     'JGE': '011',
@@ -53,13 +53,13 @@ jump_table = {
 }
 
 def assembler(filename):
-    code = []
+    clean_code = []
     with open(filename, "r") as f:
         for line in f.read().splitlines():
             if line and not line.startswith('/'):
-               code.append(line)
+               clean_code.append(line)
 
-    for line in code:
+    for line in clean_code:
         if line.startswith('@'):
             print(parse_a(line))
         else:
@@ -74,9 +74,9 @@ def parse_c(line):
     value2 = re.findall("^.*\d?=(.*\d?)$", line)
     value3 = re.findall("^.*\d?;(.*\d?)$", line)
     if '=' in line:
-        return '111{value2}{value1}000'.format(value2=comp_table[value2[0]], value1=dest_table[value1[0]])
+        return '111{value2}{value1}000'.format(value2=comp_values[value2[0]], value1=dest_values[value1[0]])
     else:
-        return '111{value1}000{value3}'.format(value1=comp_table[value1[0]], value3=jump_table[value3[0]])
+        return '111{value1}000{value3}'.format(value1=comp_values[value1[0]], value3=jump_values[value3[0]])
     
 
 if __name__ == "__main__":
