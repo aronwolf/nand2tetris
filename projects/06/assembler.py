@@ -53,76 +53,22 @@ jump_table = {
     'JMP': '111',
 }
 
-symbols_table = {
-    None: 16,
-    'SP': 0,
-    'LCL': 1,
-    'ARG': 2,
-    'THIS': 3,
-    'THAT': 4,
-    'R0': 0,
-    'R1': 1,
-    'R2': 2,
-    'R3': 3,
-    'R4': 4,
-    'R5': 5,
-    'R6': 6,
-    'R7': 7,
-    'R8': 8,
-    'R9': 9,
-    'R10': 10,
-    'R11': 11,
-    'R12': 12,
-    'R13': 13,
-    'R14': 14,
-    'R15': 15,
-    'SCREEN': 16384,
-    'KBD': 24576,
-}
-
-def assemble(filename):
-#    with open(filename, "r") as f:
-#        code = [line.split('/')[0].strip()
-#                for line in (l.strip() for l in f.read().splitlines())
-#                if line and not line.startswith('/')]
+def assembler(filename):
     code = []
     with open(filename, "r") as f:
         for line in f.read().splitlines():
             if line and not line.startswith('/'):
                code.append(line)
 
-    # Pass 1
-    count = 0
-    for line in code:
-        if line.startswith('('):
-            symbols_table[line.strip('()')] = count
-        else:
-            count += 1
-
-    # Pass 2
     for line in code:
         if line.startswith('@'):
             print(assemble_a(line))
-        elif line.startswith('('):
-            continue
         else:
             print(assemble_c(line))
 
 def assemble_a(line):
-    def a_inst(value):
-        return bin(int(value))[2:].zfill(16)
-
-    value = line[1:]
-    try:
-        if int(value) >= 0:
-            return a_inst(value)
-        else:
-            raise Error('A-instruction used invalid const: {line}'.format(line=line))
-    except ValueError:
-        if value not in symbols_table:
-            symbols_table[value] = symbols_table[None]
-            symbols_table[None] = symbols_table[None] + 1
-        return a_inst(symbols_table[value])
+    value = bin(int(line[1:]))[2:].zfill(16)
+    return value        
 
 def assemble_c(line):
     try:
@@ -146,4 +92,4 @@ def assemble_c(line):
                                           jump=jump.zfill(3))
 
 if __name__ == "__main__":
-    assemble(sys.argv[1])
+    assembler(sys.argv[1])
