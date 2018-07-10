@@ -80,14 +80,16 @@ symbols_table = {
     'KBD': 24576,
 }
 
-#class Error(Exception):
-#    pass
-
 def assemble(filename):
+#    with open(filename, "r") as f:
+#        code = [line.split('/')[0].strip()
+#                for line in (l.strip() for l in f.read().splitlines())
+#                if line and not line.startswith('/')]
+    code = []
     with open(filename, "r") as f:
-        code = [line.split('/')[0].strip()
-                for line in (l.strip() for l in f.read().splitlines())
-                if line and not line.startswith('/')]
+        for line in f.read().splitlines():
+            if line and not line.startswith('/'):
+               code.append(line)
 
     # Pass 1
     count = 0
@@ -95,7 +97,7 @@ def assemble(filename):
         if line.startswith('('):
             symbols_table[line.strip('()')] = count
         else:
-            count = count + 1
+            count += 1
 
     # Pass 2
     for line in code:
